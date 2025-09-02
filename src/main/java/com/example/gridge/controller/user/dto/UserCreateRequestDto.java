@@ -4,13 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import jakarta.validation.constraints.*;
 import org.hibernate.annotations.processing.Pattern;
+import io.swagger.v3.oas.annotations.*;
 
 @Schema
 @Getter
 @AllArgsConstructor
 public class UserCreateRequestDto {
 
-    @Schema(description="User's name(2~20)", example="john_doe", required=true)
+    @Schema(description="User's name(2~20)", example="testuser", required=true)
     @Size(min=2, max=20, message="Name must be between 2 and 20 characters")
     private String name;
 
