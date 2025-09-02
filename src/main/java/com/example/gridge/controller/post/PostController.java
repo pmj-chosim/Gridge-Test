@@ -23,12 +23,12 @@ public class PostController {
     //전제 조건: 로그인
     @Operation(summary = "게시글 조회", description = "모든 게시글을 조회합니다. 유저 ID로 필터링 가능하며, 페이지네이션을 지원합니다.")
     @GetMapping("")
-    public ResponseEntity<Post<PostDetailResponseDto>> getPosts(
+    public ResponseEntity<Page<PostDetailResponseDto>> getPosts(
             @RequestParam(required = false) Integer userId,
             @RequestParam Integer page,
             @RequestParam Integer size){
 
-        Post<PostDetailResponseDto> posts;
+        Page<PostDetailResponseDto> posts;
         if (userId != null) {
             // userId가 존재하면 특정 유저의 게시글 조회
             posts = postService.getPostsByUserId(userId, page, size);
@@ -71,6 +71,13 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    //전제 조건:  로그인, 유저 정보 갖고 오기
+    @DeleteMapping("/{postId}/likes")
+    public ResponseEntity<Void> unlikePost(@PathVariable Integer postId){
+        postService.unlikePost(postId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
 
     //전제 조건: 로그인, 유저 정보 갖고 오기
     @PostMapping("/{postId}/comments")
@@ -80,11 +87,19 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    //전제 조건: 로그인, 유저 정보 갖고 오기
+    @DeleteMapping("/{postId}/comments/{commentId}")
+    public ResponseEntity<Void> deleteComment(
+            @PathVariable Integer postId, @PathVariable Integer commentId){
+        postService.deleteComment(postId, commentId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
 
     @GetMapping("/{postId}/comments")
     public ResponseEntity<Post<CommentResponseDto>> getComments(
             @PathVariable Integer postId, @RequestParam Integer page, @RequestParam Integer size){
-        Post<CommentResponseDto> comments = postService.getComments(postId);
+        Post<CommentResponseDto> comments = postService.getComments(postId, page, size);
         return ResponseEntity.ok(comments);
     }
 
