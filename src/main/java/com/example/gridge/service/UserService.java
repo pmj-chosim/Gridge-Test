@@ -4,18 +4,20 @@ import com.example.gridge.controller.user.dto.UserCreateRequestDto;
 import com.example.gridge.controller.user.dto.UserLoginRequestDto;
 import com.example.gridge.controller.user.dto.UserResponseDto;
 import com.example.gridge.controller.user.dto.UserSimpleResponseDto;
+import com.example.gridge.repository.UserRepository;
+import com.example.gridge.repository.entity.user.User;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
-@Getter
 @RequiredArgsConstructor
 public class UserService {
-    private final UserRepository userRepository;
+    UserRepository userRepository;
 
     public UserResponseDto login(UserLoginRequestDto request){
         User user=userRepository.findByName(request.getName()).
@@ -52,7 +54,7 @@ public class UserService {
         return UserResponseDto.from(user);
     }
 
-    //다른 쿼리들에 대해서도 처리 필
+    //다른 쿼리들에 대해서도 처리 필요
     public Page<UserSimpleResponseDto> getAllUsers(int page, int size){
         Pageable pageable= PageRequest.of(page,size, Sort.by("id").descending());
         Page<User> users=userRepository.findAll(pageable);

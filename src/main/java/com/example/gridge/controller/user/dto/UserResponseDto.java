@@ -1,6 +1,7 @@
 package com.example.gridge.controller.user.dto;
 
 
+import com.example.gridge.repository.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -35,8 +36,8 @@ public class UserResponseDto {
         return new UserResponseDto(
           user.getId(),
           user.getName(),
-          user.getStatus().toString(),
-          user.getPhoneNumber(),
+          user.getStatus(),
+          user.getPhonenumber(),
           user.getCreatedAt().toString(),
           user.getLastLoginAt().toString(),
           user.getIsAdmin()
