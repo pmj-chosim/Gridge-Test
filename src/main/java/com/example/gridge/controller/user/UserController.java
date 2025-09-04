@@ -2,10 +2,8 @@ package com.example.gridge.controller.user;
 
 import com.example.gridge.controller.user.dto.UserCreateRequestDto;
 import com.example.gridge.controller.user.dto.UserLoginRequestDto;
-import com.example.gridge.service.user.UserService;
-import dto.UserResponseDto;
+import com.example.gridge.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

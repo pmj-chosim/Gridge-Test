@@ -1,4 +1,4 @@
-package com.example.gridge.service.user;
+package com.example.gridge.service;
 
 import com.example.gridge.controller.user.dto.UserCreateRequestDto;
 import com.example.gridge.controller.user.dto.UserLoginRequestDto;

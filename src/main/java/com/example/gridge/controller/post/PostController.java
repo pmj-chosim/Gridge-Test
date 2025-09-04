@@ -1,6 +1,13 @@
 package com.example.gridge.controller.post;
 
+import com.example.gridge.controller.post.dto.*;
+import com.example.gridge.controller.post.dto.CommentResponseDto;
+import com.example.gridge.service.PostService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,8 +49,8 @@ public class PostController {
     //전제 조건 로그인
     @Operation(summary="내 게시글 조회", description = "로그인한 사용자가 작성한 게시글을 조회합니다. 페이지네이션을 지원합니다.")
     @GetMapping("/me")
-    public ResponseEntity<Post<PostDetailResponseDto>> getMyPosts(@RequestParam Integer page, @RequestParam Integer size){
-        Post<PostDetailResponseDto> posts = postService.getMyPosts(page, size);
+    public ResponseEntity<Page<PostDetailResponseDto>> getMyPosts(@RequestParam Integer page, @RequestParam Integer size){
+        Page<PostDetailResponseDto> posts = postService.getMyPosts(page, size);
         return ResponseEntity.ok(posts);
     }
 
@@ -97,9 +104,9 @@ public class PostController {
 
 
     @GetMapping("/{postId}/comments")
-    public ResponseEntity<Post<CommentResponseDto>> getComments(
+    public ResponseEntity<Page<CommentResponseDto>> getComments(
             @PathVariable Integer postId, @RequestParam Integer page, @RequestParam Integer size){
-        Post<CommentResponseDto> comments = postService.getComments(postId, page, size);
+        Page<CommentResponseDto> comments = postService.getComments(postId, page, size);
         return ResponseEntity.ok(comments);
     }
 
