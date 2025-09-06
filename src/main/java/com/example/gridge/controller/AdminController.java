@@ -1,7 +1,9 @@
 package com.example.gridge.controller;
 
 
+import com.example.gridge.controller.user.dto.UserResponseDto;
 import com.example.gridge.controller.user.dto.UserSimpleResponseDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;

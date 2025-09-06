@@ -30,7 +30,7 @@ public class PostService {
                 .orElseThrow(()-> new RuntimeException("Invalid user ID: " + request.getUserId()));
 
         Post post= Post.create(
-            request.getUserId(),
+            user,
             request.getContent(),
             request.getVisibleStatus(),
             request.getLocation(),

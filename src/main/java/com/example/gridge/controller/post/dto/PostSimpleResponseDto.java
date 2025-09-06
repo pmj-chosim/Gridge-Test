@@ -1,6 +1,7 @@
 package com.example.gridge.controller.post.dto;
 
 
+import com.example.gridge.repository.entity.Post.Post;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

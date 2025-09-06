@@ -1,6 +1,7 @@
 package com.example.gridge.controller.post.dto;
 
 
+import com.example.gridge.repository.entity.user.VisibleStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,7 +20,7 @@ public class PostCreateRequestDto {
     private String content;
 
     @Schema(description = "게시글 공개 상태 (예: PUBLIC, PRIVATE)", example = "PUBLIC", required=true)
-    private String visibleStatus;
+    private VisibleStatus visibleStatus;
 
     @Schema(description = "게시글 위치 정보", example = "서울특별시 강남구")
     private String location;

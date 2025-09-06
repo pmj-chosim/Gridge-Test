@@ -6,19 +6,22 @@ import com.example.gridge.repository.entity.Post.Post;
 import com.example.gridge.repository.entity.Post.Report;
 import com.example.gridge.repository.entity.payment.Payment;
 import com.example.gridge.repository.entity.payment.Subscription;
-import com.example.gridge.repository.entity.visibleStatus;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 @Entity
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -26,13 +29,16 @@ public class User {
 
     private String name;
     private String pwd;
-    //ENUM 값이어야 함
-    private visibleStatus status;
+    @Enumerated(EnumType.STRING)
+    private VisibleStatus status;
     private String phonenumber;
     private LocalDateTime createdAt;
     private LocalDateTime lastLoginAt;
     private Boolean isAdmin;
     private LocalDate birthDate;
+
+    @Enumerated(EnumType.STRING)
+    private LoginType loginType;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<Payment> payment;
@@ -54,14 +60,18 @@ public class User {
 
     public static User create(
             String name, String pwd, String phone_number,
-            Boolean isadmin, LocalDate birthDate
+            Boolean isAdmin, LocalDate birthDate, LoginType loginType
     ){
+        if (loginType==null) {
+            loginType = LoginType.GENERAL;
+        }
         return new User(
-                null, name, pwd, visibleStatus.PUBLIC, phone_number,
-                LocalDateTime.now(), LocalDateTime.now(), isadmin, birthDate,
-                Collections.emptyList(), Collections.emptyList(),
-                Collections.emptyList(), Collections.emptyList(),
-                Collections.emptyList(), Collections.emptyList()
+                null, name, pwd, VisibleStatus.PUBLIC, phone_number,
+                LocalDateTime.now(), LocalDateTime.now(), isAdmin, birthDate,
+                loginType,
+                new ArrayList<>(), new ArrayList<>(),
+                new ArrayList<>(), new ArrayList<>(),
+                new ArrayList<>(), new ArrayList<>()
         );
     }
 }
