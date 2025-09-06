@@ -1,6 +1,8 @@
 package com.example.gridge.controller.post.dto;
 
 
+import com.example.gridge.repository.entity.Post.Report;
+import com.example.gridge.repository.entity.Post.ReportStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,7 +16,7 @@ public class ReportResponseDto {
     private Integer reportId;
 
     @Schema(description = "신고 상태", example = "pending")
-    private String status;
+    private ReportStatus status;
 
     @Schema(description = "신고 생성 시간", example = "2023-10-05T14:48:00")
     private String createdAt;

@@ -2,7 +2,10 @@ package com.example.gridge.controller.user;
 
 import com.example.gridge.controller.user.dto.UserCreateRequestDto;
 import com.example.gridge.controller.user.dto.UserLoginRequestDto;
+import com.example.gridge.controller.user.dto.UserResponseDto;
 import com.example.gridge.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,13 +34,13 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<UserResponseDto> register(@RequestBody @Valid UserCreateRequestDto request){
         UserResponseDto user=userService.create(request);
-        return ResponseEntity.ok(user);
+        return ResponseEntity.status(201).body(user);
     }
 
     @Operation(summary="유저 비밀번호 재설정", description="유저가 자신의 비밀번호를 재설정합니다.")
     @PostMapping("/reset-password")
-    public UserResponseDto resetPassword(@RequestBody @Valid UserCreateRequestDto request){
-        UserResponseDto user= userService.resetPassword(request);
+    public ResponseEntity<UserResponseDto> resetPassword(@RequestBody @Valid UserLoginRequestDto request){
+        UserResponseDto user = userService.resetPassword(request);
         return ResponseEntity.ok(user);
     }
 

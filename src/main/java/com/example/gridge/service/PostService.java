@@ -2,6 +2,8 @@ package com.example.gridge.service;
 
 
 import com.example.gridge.controller.post.dto.*;
+import com.example.gridge.repository.CommentRepository;
+import com.example.gridge.repository.LikeRepository;
 import com.example.gridge.repository.PostRepository;
 import com.example.gridge.repository.UserRepository;
 import com.example.gridge.repository.entity.Post.Post;

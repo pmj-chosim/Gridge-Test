@@ -1,6 +1,7 @@
 package com.example.gridge.controller.post.dto;
 
 
+import com.example.gridge.repository.entity.user.VisibleStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,5 +15,5 @@ public class PostUpdateRequestDto {
     private String content;
 
     @Schema(description = "수정할 게시글 공개 상태 (예: PUBLIC, PRIVATE)", example = "PRIVATE", required = false)
-    private String visibleStatus;
+    private VisibleStatus visibleStatus;
 }
