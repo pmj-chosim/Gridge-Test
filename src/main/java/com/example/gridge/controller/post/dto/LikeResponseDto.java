@@ -1,6 +1,8 @@
 package com.example.gridge.controller.post.dto;
 
 
+import com.example.gridge.repository.entity.Post.Like;
+import com.example.gridge.repository.entity.Post.Post;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,10 +12,16 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class LikeResponseDto {
-    @Schema(description = "좋아요 상태 반환(예: 'liked', 'unliked')", example = "liked", required = true)
-    private String status;
+    @Schema(description = "좋아요 id", example = "ID")
+    private Integer likeId;
 
-    public static LikeResponseDto from(String status) {
-        return new LikeResponseDto(status);
+    @Schema(description = "좋아요가 눌린 게시글 id", example = "ID")
+    private Integer postId;
+
+    public static LikeResponseDto from(Like like) {
+        return new LikeResponseDto(
+                like.getId(),
+                like.getPost().getId()
+        );
     }
 }

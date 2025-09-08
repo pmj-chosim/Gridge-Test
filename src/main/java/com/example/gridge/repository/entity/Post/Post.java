@@ -48,12 +48,12 @@ public class Post {
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<PostMedia> postMediaList = new ArrayList<>();
 
-    // 논리적 삭제를 위해 CascadeType.REMOVE 사용하지 않음
-    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    // 댓글 기록도 함께 삭제
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<Comment> commentList;
 
-    // 좋아요 기록은 별도로 삭제 관리
-    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    // 좋아요 기록도 함께 삭제 관리
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<Like> likeList;
 
     // 신고 기록은 보존되어야 하므로 CascadeType.REMOVE 사용하지 않음
@@ -87,5 +87,31 @@ public class Post {
     public void addPostMedia(PostMedia media) {
         this.postMediaList.add(media);
         media.setPost(this);
+    }
+
+    public void incrementLikeCount() {
+        this.likeCount++;
+    }
+
+    public void decrementLikeCount() {
+        if (this.likeCount > 0) {
+            this.likeCount--;
+        }
+    }
+
+    public void incrementCommentCount() {
+        this.commentCount++;
+    }
+
+    public void decrementCommentCount() {
+        if (this.commentCount > 0) {
+            this.commentCount--;
+        }
+    }
+
+    public void update(String content, VisibleStatus status) {
+        this.content = content;
+        this.status = status;
+        this.updatedAt = LocalDateTime.now();
     }
 }

@@ -13,9 +13,6 @@ import java.util.List;
 @AllArgsConstructor
 public class PostCreateRequestDto {
 
-    @Schema(description = "작성자 유저 ID", example = "1", required = true)
-    private Integer userId;
-
     @Schema(description = "게시글 내용", example = "오늘은 날씨가 좋네요!", required = true)
     private String content;
 

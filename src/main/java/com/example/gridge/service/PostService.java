@@ -1,220 +1,184 @@
 package com.example.gridge.service;
 
-
 import com.example.gridge.controller.post.dto.*;
-import com.example.gridge.repository.CommentRepository;
-import com.example.gridge.repository.LikeRepository;
-import com.example.gridge.repository.PostRepository;
-import com.example.gridge.repository.UserRepository;
+import com.example.gridge.repository.*;
+import com.example.gridge.repository.entity.Post.Comment;
+import com.example.gridge.repository.entity.Post.Like;
 import com.example.gridge.repository.entity.Post.Post;
+import com.example.gridge.repository.entity.Post.Report;
+import com.example.gridge.repository.entity.Post.ReportReason;
 import com.example.gridge.repository.entity.user.User;
-import jakarta.validation.Valid;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-@Getter
 public class PostService {
-    PostRepository postRepository;
-    UserRepository userRepository;
-    CommentRepository commentRepository;
-    LikeRepository likeRepository;
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
+    private final LikeRepository likeRepository;
+    private final ReportRepository reportRepository;
 
-    public PostSimpleResponseDto createPost(PostCreateRequestDto request) {
-        User user= userRepository.findById(request.getUserId())
-                .orElseThrow(()-> new RuntimeException("Invalid user ID: " + request.getUserId()));
-
-        Post post= Post.create(
-            user,
-            request.getContent(),
-            request.getVisibleStatus(),
-            request.getLocation(),
-            request.getMediaUrls()
+    @Transactional
+    public PostSimpleResponseDto createPost(User user, PostCreateRequestDto request) {
+        Post post = Post.create(
+                user,
+                request.getContent(),
+                request.getVisibleStatus(),
+                request.getLocation(),
+                request.getMediaUrls()
         );
-
         Post savedPost = postRepository.save(post);
         return PostSimpleResponseDto.from(savedPost);
     }
 
+    @Transactional(readOnly = true)
+    public Page<PostDetailResponseDto> getPosts(Integer userId, Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Post> posts;
 
-    public Page<PostDetailResponseDto> getPostsByUserId(Integer userId, Integer page, Integer size) {
-        User user= userRepository.findById(userId)
-                .orElseThrow(()-> new RuntimeException("Invalid user ID: " + userId));
-        Page<Post> posts = postRepository.findByUserId(userId, PageRequest.of(page, size, Sort.by("createdAt").descending()));
+        if (userId != null) {
+            posts = postRepository.findByUserId(userId, pageable);
+        } else {
+            posts = postRepository.findAll(pageable);
+        }
         return posts.map(PostDetailResponseDto::from);
     }
 
-    public Page<PostDetailResponseDto> getAllPosts(Integer page, Integer size) {
-        Page<Post> posts =postRepository.findAll(PageRequest.of(page, size, Sort.by("createdAt").descending()));
+    @Transactional(readOnly = true)
+    public Page<PostDetailResponseDto> getMyPosts(User user, Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Post> posts = postRepository.findByUserId(user.getId(), pageable);
         return posts.map(PostDetailResponseDto::from);
     }
 
-
-    public Page<PostDetailResponseDto> getMyPosts(Integer page, Integer size) {
-        // 현재 로그인한 사용자의 ID를 가져오는 메서드!!!!!!!!!!!!! authen?? 이런걸로 바꾸기
-        Integer currentUserId = getCurrentUserId();
-        Page<Post> posts = postRepository.findByUserId(currentUserId, PageRequest.of(page, size, Sort.by("createdAt").descending()));
-        return posts.map(PostDetailResponseDto::from);
-    }
-
-
-    public PostSimpleResponseDto updatePost(Integer postId, PostUpdateRequestDto request) {
+    @Transactional
+    public PostSimpleResponseDto updatePost(User user, Integer postId, PostUpdateRequestDto request) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
 
-        // 현재 로그인한 사용자의 ID를 가져오는 메서드!!!!!!!!!!!!! authen?? 이런걸로 바꾸기
-        Integer currentUserId = getCurrentUserId();
-
-        if (!post.getUserId().equals(currentUserId)) {
-            //익셉션 내가 정의하기
+        if (!post.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("You are not authorized to update this post.");
         }
 
-        post.update(
-                request.getContent(),
-                request.getVisibleStatus()
-        );
-
+        post.update(request.getContent(), request.getVisibleStatus());
         Post updatedPost = postRepository.save(post);
         return PostSimpleResponseDto.from(updatedPost);
     }
 
-    public void deletePost(Integer postId) {
+    @Transactional
+    public void deletePost(User user, Integer postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
 
-        // 현재 로그인한 사용자의 ID를 가져오는 메서드!!!!!!!!!!!!! authen?? 이런걸로 바꾸기
-        Integer currentUserId = getCurrentUserId();
-
-        if (!post.getUserId().equals(currentUserId)) {
-            //익셉션 내가 정의하기
+        if (!post.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("You are not authorized to delete this post.");
         }
 
-        // 게시글에 달린 댓글 삭제
-        commentRepository.deleteByPostId(postId);
-        // 게시글에 달린 좋아요 삭제
-        likeRepository.deleteByPostId(postId);
-        // 게시글 삭제
+        // This assumes CascadeType.REMOVE is set on the Post entity's relationships
+        // with Comment and Like to handle deletion automatically.
         postRepository.delete(post);
     }
 
-
-    public LikeResponseDto likePost(Integer postId) {
+    @Transactional
+    public LikeResponseDto likePost(User user, Integer postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
 
-        // 현재 로그인한 사용자의 ID를 가져오는 메서드!!!!!!!!!!!!! authen?? 이런걸로 바꾸기
-        Integer currentUserId = getCurrentUserId();
-        User user = userRepository.findById(currentUserId)
-                .orElseThrow(() -> new RuntimeException("Invalid user ID: " + currentUserId));
-
-        // 이미 좋아요를 눌렀는지 확인
-        if (likeRepository.existsByUserIdAndPostId(currentUserId, postId)) {
-            //익셉션 정의하기
+        if (likeRepository.existsByUserIdAndPostId(user.getId(), postId)) {
             throw new RuntimeException("You have already liked this post.");
         }
 
-        Like like = Like.create(currentUserId, postId);
+        Like like = Like.create(post, user);
         Like savedLike = likeRepository.save(like);
 
-        // 좋아요 수 증가
+        // 좋아요 개수 증가
         post.incrementLikeCount();
         postRepository.save(post);
 
         return LikeResponseDto.from(savedLike);
     }
 
-
-    public void unlikePost(Integer postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
-
-        // 현재 로그인한 사용자의 ID를 가져오는 메서드!!!!!!!!!!!!! authen?? 이런걸로 바꾸기
-        Integer currentUserId = getCurrentUserId();
-
-        Like like = likeRepository.findByUserIdAndPostId(currentUserId, postId)
+    @Transactional
+    public void unlikePost(User user, Integer postId) {
+        Like like = likeRepository.findByUserIdAndPostId(user.getId(), postId)
                 .orElseThrow(() -> new RuntimeException("You have not liked this post."));
 
-        likeRepository.deleteById(like.getId());
+        likeRepository.delete(like);
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
 
         // 좋아요 수 감소
         post.decrementLikeCount();
         postRepository.save(post);
     }
 
-    public CommentResponseDto addComment(Integer postId, @Valid CommentRequestDto request) {
+    @Transactional
+    public CommentResponseDto addComment(User user, Integer postId, CommentRequestDto request) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
 
-        // 현재 로그인한 사용자의 ID를 가져오는 메서드!!!!!!!!!!!!! authen?? 이런걸로 바꾸기
-        Integer currentUserId = getCurrentUserId();
-        User user = userRepository.findById(currentUserId)
-                .orElseThrow(() -> new RuntimeException("Invalid user ID: " + currentUserId));
-
-        Comment comment = Comment.create(currentUserId, postId, request.getContent());
+        Comment comment = Comment.create(post, user, request.getContent());
         Comment savedComment = commentRepository.save(comment);
 
-        // 댓글 수 증가
+        // 댓글 개수 증가
         post.incrementCommentCount();
         postRepository.save(post);
 
         return CommentResponseDto.from(savedComment);
     }
 
-    public void deleteComment(Integer postId, Integer commentId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
-
+    @Transactional
+    public void deleteComment(User user, Integer postId, Integer commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("Comment not found with ID: " + commentId));
 
-        if (!comment.getPostId().equals(postId)) {
+        if (!comment.getPost().getId().equals(postId)) {
             throw new RuntimeException("This comment does not belong to the specified post.");
         }
 
-        // 현재 로그인한 사용자의 ID를 가져오는 메서드!!!!!!!!!!!!! authen?? 이런걸로 바꾸기
-        Integer currentUserId = getCurrentUserId();
-
-        if (!comment.getUserId().equals(currentUserId)) {
-            //익셉션 내가 정의하기
+        if (!comment.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("You are not authorized to delete this comment.");
         }
 
-        commentRepository.deleteById(commentId);
+        commentRepository.delete(comment);
 
-        // 댓글 수 감소
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
+
+        // 댓글 개수 감소
         post.decrementCommentCount();
         postRepository.save(post);
     }
 
+    @Transactional(readOnly = true)
     public Page<CommentResponseDto> getComments(Integer postId, Integer page, Integer size) {
-        Post post = postRepository.findById(postId)
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
 
-        Page<Comment> comments = commentRepository.findByPostId(postId, PageRequest.of(page, size, Sort.by("createdAt").descending()));
+        Page<Comment> comments = commentRepository.findByPostId(postId, pageable);
         return comments.map(CommentResponseDto::from);
-
-
     }
 
-    public ReportResponseDto reportPost(Integer postId, @Valid ReportRequestDto request) {
+    @Transactional
+    public ReportResponseDto reportPost(User user, Integer postId, ReportRequestDto request) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
 
-        // 현재 로그인한 사용자의 ID를 가져오는 메서드!!!!!!!!!!!!! authen?? 이런걸로 바꾸기
-        Integer currentUserId = getCurrentUserId();
-        User user = userRepository.findById(currentUserId)
-                .orElseThrow(() -> new RuntimeException("Invalid user ID: " + currentUserId));
-
-        Report report = Report.create(currentUserId, postId, request.getReason());
+        // Ensure that the DTO has a getReportContent() method
+        Report report = Report.create(user, post, request.getReportReason(), request.getReportContent());
         Report savedReport = reportRepository.save(report);
 
         return ReportResponseDto.from(savedReport);
