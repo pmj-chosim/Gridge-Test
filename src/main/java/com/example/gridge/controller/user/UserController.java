@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -51,9 +52,11 @@ public class UserController {
 
     @Operation(summary="유저 비밀번호 재설정", description="유저가 자신의 비밀번호를 재설정합니다.")
     @PostMapping("/reset-password")
-    public ResponseEntity<UserResponseDto> resetPassword(@RequestBody @Valid UserLoginRequestDto request){
-        UserResponseDto user = userService.resetPassword(request);
-        return ResponseEntity.ok(user);
+    public ResponseEntity<UserResponseDto> resetPassword(
+            @AuthenticationPrincipal User user,
+            @RequestBody @Valid UserLoginRequestDto request){
+        UserResponseDto updatedUser = userService.resetPassword(user, request);
+        return ResponseEntity.ok(updatedUser);
     }
 
 }

@@ -50,9 +50,12 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public UserResponseDto resetPassword(UserLoginRequestDto request) {
-        User user = userRepository.findByName(request.getName())
+    public UserResponseDto resetPassword(User user, UserLoginRequestDto request) {
+        User inputUser=userRepository.findByName(request.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        if (!user.getId().equals(inputUser.getId())) {
+            throw new RuntimeException("You can only reset your own password");
+        }
         String newPassword = request.getPassword();
         user.resetPassword(newPassword);
         userRepository.save(user);

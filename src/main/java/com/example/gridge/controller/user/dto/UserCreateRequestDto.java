@@ -27,11 +27,10 @@ public class UserCreateRequestDto {
     private String password;
 
     @Schema(description="User's phone number in the format +82-10-xxxx-xxxx", example="+82-10-1234-5678", required=true)
-    @Pattern(regexp = "^\\+82-010-\\d{4}-\\d{4}$", message = "Phone number must be in the format +82-10-xxxx-xxxx")
+    @Pattern(regexp = "^\\+82-10-\\d{4}-\\d{4}$", message = "Phone number must be in the format +82-10-xxxx-xxxx")
     private String phoneNumber;
 
     @Schema(description="User's birth date in the format YYYY-MM-DD", example="1990-01-01", required=true)
-    @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}$", message = "Birth date must be in the format YYYY-MM-DD")
     private LocalDate birthDate;
 
     @Schema(description="Login type (e.g., GENERAL, KAKAO, NAVER, GOOGLE)", example="GENERAL", required=true)

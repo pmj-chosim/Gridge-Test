@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,24 +22,39 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final UserDetailsService userDetailsService;
-    private final CorsConfigurationSource reactConfigurationSource;
+    private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.formLogin(form -> form
-                .loginPage("/login")
-                .permitAll());
+
+        http.csrf(csrf -> csrf.disable());
+        http.cors(Customizer.withDefaults());
+
+        // API 인증 실패 시 RESTful 에러를 반환
+        http.exceptionHandling(exceptionHandling ->
+                exceptionHandling.authenticationEntryPoint(restAuthenticationEntryPoint)
+        );
+
+        http.httpBasic(Customizer.withDefaults());
+
         http.logout(logout -> logout
                 .logoutUrl("/logout")
-                .logoutSuccessUrl("/login"));
-        http.authorizeHttpRequests(request -> request.requestMatchers("/api/**").authenticated());
-        // Swagger 관련 경로들을 permitAll()로 허용
-        http.authorizeHttpRequests(request -> request
-                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**").permitAll());
+                .logoutSuccessHandler((request, response, authentication) -> {
+                    response.setStatus(200);
+                    response.getWriter().write("Logout successful");
+                }));
 
-        // 기존에 permitAll()로 설정했던 경로들을 여기에 통합
         http.authorizeHttpRequests(request -> request
-                .requestMatchers("/health", "/images/**", "/favicon.ico").permitAll());
+                .requestMatchers(
+                        "/api/users/register", "/api/users/login",
+                        "/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**",
+                        "/health", "/images/**", "/favicon.ico",
+                        "/error"
+                ).permitAll()
+                .anyRequest().authenticated()
+        );
+
+
         return http.build();
     }
 
@@ -46,13 +62,16 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder authenticationManagerBuilder =
                 http.getSharedObject(AuthenticationManagerBuilder.class);
-
-        // UserDetailsService와 PasswordEncoder를 직접 연결하여 순환 의존성을 끊습니다.
         authenticationManagerBuilder.userDetailsService(userDetailsService)
                 .passwordEncoder(passwordEncoder());
         return authenticationManagerBuilder.build();
     }
 
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring()
+                .requestMatchers("/images/**", "/favicon.ico");
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
