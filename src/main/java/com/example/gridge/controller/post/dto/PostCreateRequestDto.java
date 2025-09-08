@@ -30,4 +30,6 @@ public class PostCreateRequestDto {
 
     @Schema(description="게시글 미디어 타입", example="[\"IMAGE\", \"VIDEO\"]")
     private List<String> mediaTypes;
+
+
 }

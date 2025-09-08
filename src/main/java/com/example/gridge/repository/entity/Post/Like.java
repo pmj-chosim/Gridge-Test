@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -28,12 +29,12 @@ public class Like {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Timestamp createdAt;
+    private Timestamp updatedAt;
 
     public static Like create(Post post, User user){
         return new Like(
-                null, post, user, LocalDateTime.now(), LocalDateTime.now()
+                null, post, user, new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis())
         );
     }
 

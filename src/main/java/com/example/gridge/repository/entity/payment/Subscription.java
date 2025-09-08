@@ -4,6 +4,7 @@ import com.example.gridge.repository.entity.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,8 +32,8 @@ public class Subscription {
 
     private LocalDate startSubscription;
     private LocalDate endSubscription;
-    private LocalDate createdAt;
-    private LocalDate updatedAt;
+    private Timestamp createdAt;
+    private Timestamp updatedAt;
 
     // Payment를 인자로 받지 않는 새로운 create 메서드
     public static Subscription create(User user, SubscriptionStatus type, Integer durationInMonths) {
@@ -43,8 +44,8 @@ public class Subscription {
                 type,
                 LocalDate.now(),
                 LocalDate.now().plusMonths(durationInMonths),
-                LocalDate.now(),
-                LocalDate.now()
+                new Timestamp(System.currentTimeMillis()),
+                new Timestamp(System.currentTimeMillis())
         );
     }
     public void addPayment(Payment payment) {

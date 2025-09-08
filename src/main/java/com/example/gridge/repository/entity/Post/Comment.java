@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity
@@ -29,8 +30,8 @@ public class Comment {
 
     private String content;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Timestamp createdAt;
+    private Timestamp updatedAt;
 
     public static Comment create(Post post, User user, String content) {
         return new Comment(
@@ -38,8 +39,8 @@ public class Comment {
                 post,
                 user,
                 content,
-                LocalDateTime.now(),
-                LocalDateTime.now()
+                new Timestamp(System.currentTimeMillis()),
+                new Timestamp(System.currentTimeMillis())
         );
     }
 }

@@ -4,6 +4,7 @@ import com.example.gridge.repository.entity.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Setter
@@ -30,7 +31,7 @@ public class Payment {
     private PaymentStatus status;
 
     private String transactionId;
-    private LocalDateTime createdAt;
+    private Timestamp createdAt;
 
 
     public static Payment create(User user, Integer paymentAmount, PaymentStatus status, String merchantUid) {
@@ -41,7 +42,7 @@ public class Payment {
                 paymentAmount,
                 status,
                 merchantUid,
-                LocalDateTime.now()
+                new Timestamp(System.currentTimeMillis())
         );
     }
 
