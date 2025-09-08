@@ -1,6 +1,8 @@
 package com.example.gridge.controller.payment.dto;
 
 
+import com.example.gridge.repository.entity.payment.Subscription;
+import com.example.gridge.repository.entity.payment.SubscriptionStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,7 +18,7 @@ public class SubscriptionResponseDto {
     private Integer userId;
 
     @Schema(description = "구독 상태", example = "active")
-    private String status;
+    private SubscriptionStatus status;
 
     @Schema(description = "구독 시작 날짜", example = "2024-09-01T00:00:00Z")
     private String startDate;
@@ -27,10 +29,10 @@ public class SubscriptionResponseDto {
     public static SubscriptionResponseDto from(Subscription subscription) {
         return new SubscriptionResponseDto(
                 subscription.getId(),
-                subscription.getUserId(),
-                subscription.getStatus(),
-                subscription.getStartDate().toString(),
-                subscription.getEndDate().toString()
+                subscription.getUser().getId(),
+                subscription.getType(),
+                subscription.getStartSubscription().toString(),
+                subscription.getEndSubscription().toString()
         );
     }
 

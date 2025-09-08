@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Integer> {
 
-    //findByUserId 이거 확인 필
     Page<Post> findByUserId(Integer userId, Pageable pageable);
     Page<Post> findAll(Pageable pageable);
 

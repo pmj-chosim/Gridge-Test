@@ -1,9 +1,15 @@
 package com.example.gridge.repository;
 
 
-import lombok.RequiredArgsConstructor;
+import com.example.gridge.repository.entity.payment.Payment;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
-public interface PaymentRepository {
+public interface PaymentRepository extends JpaRepository<Payment, Integer> {
+    Payment save(Payment payment);
+
+    Optional<Payment> findByMerchantUid(String merchantUid);
 }
