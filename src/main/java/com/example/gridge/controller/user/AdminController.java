@@ -4,6 +4,7 @@ package com.example.gridge.controller.user;
 import com.example.gridge.controller.user.dto.UserResponseDto;
 import com.example.gridge.controller.user.dto.UserSimpleResponseDto;
 import com.example.gridge.repository.entity.user.ActiveLevel;
+import com.example.gridge.service.UserCreationService;
 import com.example.gridge.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -22,7 +23,7 @@ import java.util.Optional;
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
 public class AdminController {
-    private final UserService userService;
+    private final UserCreationService userService;
 
 
     @Secured("ROLE_ADMIN")

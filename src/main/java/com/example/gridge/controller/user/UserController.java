@@ -4,6 +4,7 @@ import com.example.gridge.controller.user.dto.UserCreateRequestDto;
 import com.example.gridge.controller.user.dto.UserLoginRequestDto;
 import com.example.gridge.controller.user.dto.UserResponseDto;
 import com.example.gridge.repository.entity.user.User;
+import com.example.gridge.service.UserCreationService;
 import com.example.gridge.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -27,8 +28,11 @@ import io.swagger.v3.oas.annotations.*;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final UserCreationService userCreationService;
     private final AuthenticationManager authenticationManager;
 
+
+    /*
     @Operation(summary="유저 로그인", description="유저가 자신의 계정으로 로그인합니다.")
     @PostMapping("/login")
     public ResponseEntity<UserResponseDto> login(@RequestBody @Valid UserLoginRequestDto request){
@@ -41,12 +45,12 @@ public class UserController {
 
         User user = (User) authentication.getPrincipal();
         return ResponseEntity.ok(UserResponseDto.from(user));
-    }
+    }*/
 
     @Operation(summary="유저 회원가입", description="새로운 유저가 회원가입을 합니다.")
     @PostMapping("/register")
     public ResponseEntity<UserResponseDto> register(@RequestBody @Valid UserCreateRequestDto request){
-        UserResponseDto user=userService.create(request);
+        UserResponseDto user=userCreationService.create(request);
         return ResponseEntity.status(201).body(user);
     }
 
@@ -55,7 +59,7 @@ public class UserController {
     public ResponseEntity<UserResponseDto> resetPassword(
             @AuthenticationPrincipal User user,
             @RequestBody @Valid UserLoginRequestDto request){
-        UserResponseDto updatedUser = userService.resetPassword(user, request);
+        UserResponseDto updatedUser = userCreationService.resetPassword(user, request);
         return ResponseEntity.ok(updatedUser);
     }
 

@@ -7,19 +7,11 @@ import com.example.gridge.controller.user.dto.UserSimpleResponseDto;
 import com.example.gridge.repository.UserRepository;
 import com.example.gridge.repository.entity.user.ActiveLevel;
 import com.example.gridge.repository.entity.user.User;
-import com.example.gridge.repository.entity.user.VisibleStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,17 +21,18 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements UserDetailsService {
+public class UserCreationService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    /*
+
     @Transactional
     public UserResponseDto create(UserCreateRequestDto request) {
-        String rawPassword = request.getPassword();
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
         User user = User.create(
                 request.getName(),
-                rawPassword,
+                encodedPassword,
                 request.getPhoneNumber(),
                 false,
                 request.getBirthDate(),
@@ -52,12 +45,8 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public UserResponseDto resetPassword(User user, UserLoginRequestDto request) {
-        User inputUser=userRepository.findByName(request.getName())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        if (!user.getId().equals(inputUser.getId())) {
-            throw new RuntimeException("You can only reset your own password");
-        }
-        String newPassword = request.getPassword();
+        // 이미 인증된 사용자이므로, user 객체를 사용해 비밀번호를 변경합니다.
+        String newPassword = passwordEncoder.encode(request.getPassword());
         user.resetPassword(newPassword);
         userRepository.save(user);
         return UserResponseDto.from(user);
@@ -90,11 +79,5 @@ public class UserService implements UserDetailsService {
         );
 
         return users.map(UserSimpleResponseDto::from);
-    }*/
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByName(username)
-                .orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 유저입니다 - username : " + username));
     }
 }
