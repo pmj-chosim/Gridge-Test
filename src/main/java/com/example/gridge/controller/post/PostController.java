@@ -48,6 +48,7 @@ public class PostController {
         return ResponseEntity.ok(posts);
     }
 
+
     @Operation(summary="내 게시글 조회", description = "로그인된 사용자의 작성한 게시글을 조회합니다. 페이지네이션을 지원합니다.")
     @GetMapping("/me")
     public ResponseEntity<Page<PostDetailResponseDto>> getMyPosts(@AuthenticationPrincipal User user,
@@ -66,12 +67,20 @@ public class PostController {
         return ResponseEntity.ok(updatedPost);
     }
 
+    @Operation(summary="특정 게시글 상세 조회", description = "특정 게시글의 상세 정보를 조회합니다.")
+    @GetMapping("/{postId}")
+    public ResponseEntity<PostDetailResponseDto> getPostById(@PathVariable Integer postId){
+        PostDetailResponseDto post = postService.getPostById(postId);
+        return ResponseEntity.ok(post);
+    }
+
+
 
     @Operation(summary="게시글 삭제", description = "특정 게시글을 삭제합니다. 작성자만 삭제할 수 있습니다.")
     @DeleteMapping("/{postId}")
-    public ResponseEntity<Void> deletePost(@AuthenticationPrincipal User user,@PathVariable Integer postId){
+    public ResponseEntity<String> deletePost(@AuthenticationPrincipal User user,@PathVariable Integer postId){
         postService.deletePost(user, postId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.ok("게시글이 삭제되었습니다.");
     }
 
     //전제 조건: 로그인, 유저 정보 갖고 오기
@@ -85,9 +94,9 @@ public class PostController {
     //전제 조건:  로그인, 유저 정보 갖고 오기
     @Operation(summary="게시글 좋아요 취소", description = "특정 게시글의 좋아요를 취소합니다.")
     @DeleteMapping("/{postId}/likes")
-    public ResponseEntity<Void> unlikePost(@AuthenticationPrincipal User user, @PathVariable Integer postId){
+    public ResponseEntity<String> unlikePost(@AuthenticationPrincipal User user, @PathVariable Integer postId){
         postService.unlikePost(user, postId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.ok("좋아요가 취소되었습니다.");
     }
 
 
@@ -103,10 +112,10 @@ public class PostController {
     //전제 조건: 로그인, 유저 정보 갖고 오기
     @Operation(summary="댓글 삭제", description = "특정 게시글의 댓글을 삭제합니다. 작성자만 삭제할 수 있습니다.")
     @DeleteMapping("/{postId}/comments/{commentId}")
-    public ResponseEntity<Void> deleteComment(@AuthenticationPrincipal User user,
+    public ResponseEntity<String> deleteComment(@AuthenticationPrincipal User user,
             @PathVariable Integer postId, @PathVariable Integer commentId){
         postService.deleteComment(user, postId, commentId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.ok("댓글이 삭제되었습니다.");
     }
 
 

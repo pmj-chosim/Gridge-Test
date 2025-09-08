@@ -2,12 +2,9 @@ package com.example.gridge.service;
 
 import com.example.gridge.controller.post.dto.*;
 import com.example.gridge.repository.*;
-import com.example.gridge.repository.entity.Post.Comment;
-import com.example.gridge.repository.entity.Post.Like;
-import com.example.gridge.repository.entity.Post.Post;
-import com.example.gridge.repository.entity.Post.Report;
-import com.example.gridge.repository.entity.Post.ReportReason;
+import com.example.gridge.repository.entity.Post.*;
 import com.example.gridge.repository.entity.user.User;
+import com.example.gridge.repository.entity.user.VisibleStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,7 +32,8 @@ public class PostService {
                 request.getContent(),
                 request.getVisibleStatus(),
                 request.getLocation(),
-                request.getMediaUrls()
+                request.getMediaUrls(),
+                request.getMediaTypes()
         );
         Post savedPost = postRepository.save(post);
         return PostSimpleResponseDto.from(savedPost);
@@ -86,6 +84,8 @@ public class PostService {
 
         // This assumes CascadeType.REMOVE is set on the Post entity's relationships
         // with Comment and Like to handle deletion automatically.
+
+
         postRepository.delete(post);
     }
 
@@ -177,10 +177,31 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
 
-        // Ensure that the DTO has a getReportContent() method
+        // DTO에서 받은 정보로 Report 객체 생성.
+        // Report.create() 메서드에서 이미 상태가 PROCESSING으로 설정됨.
         Report report = Report.create(user, post, request.getReportReason(), request.getReportContent());
         Report savedReport = reportRepository.save(report);
 
         return ReportResponseDto.from(savedReport);
+    }
+
+    @Transactional
+    public void hidePost(User user, Integer reportId) {
+        Report report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new RuntimeException("Report not found with ID: " + reportId));
+
+        // 신고 상태를 ACCEPTED로 변경
+        report.updateStatus(ReportStatus.ACCEPTED);
+
+        // 연결된 게시글의 상태를 PRIVATE으로 변경
+        Post post = report.getPost();
+        post.setStatus(VisibleStatus.PRIVATE);
+        postRepository.save(post);
+    }
+
+    public PostDetailResponseDto getPostById(Integer postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
+        return PostDetailResponseDto.from(post);
     }
 }

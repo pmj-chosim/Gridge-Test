@@ -3,6 +3,7 @@ package com.example.gridge.controller.post.dto;
 
 import com.example.gridge.repository.entity.user.VisibleStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -13,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class PostCreateRequestDto {
 
-    @Schema(description = "게시글 내용", example = "오늘은 날씨가 좋네요!", required = true)
+    @Schema(description = "게시글 내용", maxLength = 255, example = "오늘은 날씨가 좋네요!", required = true)
     private String content;
 
     @Schema(description = "게시글 공개 상태 (예: PUBLIC, PRIVATE)", example = "PUBLIC", required=true)
@@ -22,6 +23,11 @@ public class PostCreateRequestDto {
     @Schema(description = "게시글 위치 정보", example = "서울특별시 강남구")
     private String location;
 
+
     @Schema(description = "게시글에 첨부된 미디어 URL 목록", example = "[\"http://exa.image1.jpg\", \"http://~.com/video1.mp4\"]")
+    @Size(min = 1, max = 5, message = "You must attach between 1 and 5 media URLs.")
     private List<String> mediaUrls;
+
+    @Schema(description="게시글 미디어 타입", example="[\"IMAGE\", \"VIDEO\"]")
+    private List<String> mediaTypes;
 }

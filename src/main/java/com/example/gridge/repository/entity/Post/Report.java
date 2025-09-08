@@ -2,13 +2,11 @@ package com.example.gridge.repository.entity.Post;
 
 import com.example.gridge.repository.entity.user.User;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 
+@Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -43,8 +41,12 @@ public class Report {
                 post,
                 reason,
                 detail,
-                ReportStatus.PENDING,
+                ReportStatus.PROCESSING,
                 LocalDate.now()
         );
+    }
+
+    public void updateStatus(ReportStatus newStatus) {
+        this.status = newStatus;
     }
 }

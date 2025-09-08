@@ -10,7 +10,7 @@ import lombok.Setter;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.DynamicInsert;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,11 +41,10 @@ public class Post {
 
     private boolean isDeleted;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Timestamp createdAt;
+    private Timestamp updatedAt;
 
-    // Post를 삭제해도 PostMedia는 남아야 하므로 REMOVE는 사용하지 않음
-    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<PostMedia> postMediaList = new ArrayList<>();
 
     // 댓글 기록도 함께 삭제
@@ -61,25 +60,31 @@ public class Post {
     private List<Report> reportList;
 
     // 팩토리 메서드
-    public static Post create(User user, String content, VisibleStatus status, String location, List<String> mediaUrls) {
+    public static Post create(User user, String content, VisibleStatus status, String location, List<String> mediaUrls, List<String> mediaTypes) {
         Post post = new Post();
         post.user = user;
         post.content = content;
         post.status = status;
         post.location = location;
         post.isDeleted = false;
-        post.createdAt = LocalDateTime.now();
-        post.updatedAt = LocalDateTime.now();
+        post.createdAt = new Timestamp(System.currentTimeMillis());
+        post.updatedAt = new Timestamp(System.currentTimeMillis());
         post.likeCount = 0;
         post.commentCount = 0;
 
         // PostMedia 리스트 생성 및 연관 관계 설정
-        if (mediaUrls != null) {
-            for (String url : mediaUrls) {
-                PostMedia media = PostMedia.create(url, MediaType.IMAGE);
-                post.addPostMedia(media); // 연관 관계 설정
-            }
+        if(mediaUrls!= null && mediaTypes != null && mediaUrls.size() != mediaTypes.size()) {
+            throw new IllegalArgumentException("Media URLs and types lists must have the same size.");
         }
+
+        for (int i = 0; i < mediaUrls.size(); i++) {
+            String url = mediaUrls.get(i);
+            MediaType type = MediaType.valueOf(mediaTypes.get(i));
+            PostMedia media = PostMedia.create(url, type);
+            post.addPostMedia(media);
+        }
+
+
         return post;
     }
 
@@ -112,6 +117,7 @@ public class Post {
     public void update(String content, VisibleStatus status) {
         this.content = content;
         this.status = status;
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = new Timestamp(System.currentTimeMillis());
     }
+
 }

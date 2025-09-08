@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
@@ -71,7 +73,7 @@ public class PaymentService {
 
     @Transactional
     public void cancelPayment(User user, PaymentCancelRequestDto request) {
-        Payment payment = paymentRepository.findByTransactionId(request.getMerchantUid())
+        Payment payment = paymentRepository.findByTransactionId(request.getImpUid())
                 .orElseThrow(() -> new RuntimeException("Invalid merchantUid."));
 
         if (!payment.getUser().getId().equals(user.getId())) {
@@ -92,9 +94,4 @@ public class PaymentService {
         savedPayment.setSubscription(null);
     }
 
-    public PaymentResponseDto getPaymentByUserId(Integer id) {
-        Payment payment = paymentRepository.findTopByUserIdOrderByCreatedAtDesc(id)
-                .orElseThrow(() -> new RuntimeException("No payment found for this user."));
-        return PaymentResponseDto.from(payment);
-    }
 }

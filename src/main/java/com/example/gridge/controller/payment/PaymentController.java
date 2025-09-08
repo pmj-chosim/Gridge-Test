@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Tag(name = "결제 API", description = "결제 관련 API")
 @RestController
 @RequiredArgsConstructor
@@ -23,12 +25,7 @@ import org.springframework.web.bind.annotation.*;
 public class PaymentController {
     private final PaymentService paymentService;
 
-    @Operation(summary = "내 결제 정보 조회 API", description = "현재 로그인한 사용자의 결제 정보를 조회하는 API")
-    @GetMapping("/me")
-    public ResponseEntity<PaymentResponseDto> getMyPayments(@AuthenticationPrincipal User user) {
-        PaymentResponseDto payment = paymentService.getPaymentByUserId(user.getId());
-        return ResponseEntity.ok(payment);
-    }
+
 
     @Operation(summary = "결제 준비 API", description = "포트원 결제 요청에 앞서 백엔드에서 금액을 검증하고, 고유한 주문 번호(merchantUid)를 생성기 위한 API")
     @PostMapping("/prepare")

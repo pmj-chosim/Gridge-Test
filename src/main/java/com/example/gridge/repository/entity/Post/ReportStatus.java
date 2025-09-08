@@ -1,7 +1,8 @@
 package com.example.gridge.repository.entity.Post;
 
 public enum ReportStatus {
-    PENDING,
+    NONE,
     PROCESSING,
-    IGNORE
+    IGNORE,
+    ACCEPTED
 }

@@ -2,9 +2,12 @@ package com.example.gridge.controller.post.dto;
 
 
 import com.example.gridge.repository.entity.Post.Post;
+import com.example.gridge.repository.entity.Post.PostMedia;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.util.List;
 
 @Schema(description = "게시글 상세 응답 DTO")
 @Getter
@@ -32,6 +35,9 @@ public class PostDetailResponseDto {
     @Schema(description = "댓글 수", example = "5")
     private Integer commentCount;
 
+    @Schema(description = "게시글에 첨부된 미디어 목록")
+    private List<PostMedia> postMediaList;
+
     public static PostDetailResponseDto from(Post post){
         return new PostDetailResponseDto(
                 post.getId(),
@@ -40,7 +46,8 @@ public class PostDetailResponseDto {
                 post.getCreatedAt().toString(),
                 post.getLocation(),
                 post.getLikeCount(),
-                post.getCommentCount()
+                post.getCommentCount(),
+                post.getPostMediaList().stream().toList()
         );
     }
 }
