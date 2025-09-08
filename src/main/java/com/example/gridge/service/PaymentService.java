@@ -37,7 +37,7 @@ public class PaymentService {
     public void completePayment(User user, PaymentCompleteRequestDto request) {
         // 결제 완료 로직
         // 1. merchantUid로 DB에서 기존 Payment 엔티티를 찾습니다.
-        Payment payment = paymentRepository.findByMerchantUid(request.getMerchantUid())
+        Payment payment = paymentRepository.findByTransactionId(request.getMerchantUid())
                 .orElseThrow(() -> new RuntimeException("Invalid merchantUid."));
 
         // 2. 포트원에서 받은 impUid를 엔티티에 저장합니다.
@@ -52,7 +52,7 @@ public class PaymentService {
     public void cancelPayment(User user, PaymentCancelRequestDto request) {
         // 결제 취소 로직
         // 1. merchantUid로 DB에서 Payment 엔티티를 찾습니다.
-        Payment payment = paymentRepository.findByMerchantUid(request.getMerchantUid())
+        Payment payment = paymentRepository.findByTransactionId(request.getMerchantUid())
                 .orElseThrow(() -> new RuntimeException("Invalid merchantUid."));
 
         // 2. 결제 취소 권한을 확인합니다.

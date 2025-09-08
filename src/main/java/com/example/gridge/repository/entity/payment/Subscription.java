@@ -2,14 +2,17 @@ package com.example.gridge.repository.entity.payment;
 
 import com.example.gridge.repository.entity.user.User;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
 @Getter
 @Entity
 @AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Subscription {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id

@@ -3,11 +3,16 @@ package com.example.gridge.controller.user;
 import com.example.gridge.controller.user.dto.UserCreateRequestDto;
 import com.example.gridge.controller.user.dto.UserLoginRequestDto;
 import com.example.gridge.controller.user.dto.UserResponseDto;
+import com.example.gridge.repository.entity.user.User;
 import com.example.gridge.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,13 +26,20 @@ import io.swagger.v3.oas.annotations.*;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final AuthenticationManager authenticationManager;
 
     @Operation(summary="유저 로그인", description="유저가 자신의 계정으로 로그인합니다.")
     @PostMapping("/login")
     public ResponseEntity<UserResponseDto> login(@RequestBody @Valid UserLoginRequestDto request){
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(request.getName(), request.getPassword());
 
-        UserResponseDto user = userService.login(request);
-        return ResponseEntity.ok(user);
+        Authentication authentication = authenticationManager.authenticate(authenticationToken);
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        User user = (User) authentication.getPrincipal();
+        return ResponseEntity.ok(UserResponseDto.from(user));
     }
 
     @Operation(summary="유저 회원가입", description="새로운 유저가 회원가입을 합니다.")

@@ -2,13 +2,16 @@ package com.example.gridge.repository.entity.Post;
 
 import com.example.gridge.repository.entity.user.User;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 public class Report {
     @GeneratedValue(strategy = GenerationType.IDENTITY)

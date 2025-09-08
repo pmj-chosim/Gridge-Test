@@ -32,37 +32,20 @@ import java.util.Optional;
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
 
-    @Transactional
-    public UserResponseDto login(UserLoginRequestDto request) {
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(request.getName(), request.getPassword());
-
-        Authentication authentication = authenticationManager.authenticate(authenticationToken);
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        User user = (User) authentication.getPrincipal();
-        return UserResponseDto.from(user);
-    }
 
     @Transactional
     public UserResponseDto create(UserCreateRequestDto request) {
-        String encodedPassword = passwordEncoder.encode(request.getPassword());
-
+        String rawPassword = request.getPassword();
         User user = User.create(
                 request.getName(),
-                encodedPassword,
+                rawPassword,
                 request.getPhoneNumber(),
                 false,
                 request.getBirthDate(),
                 request.getLoginType()
         );
-
         userRepository.save(user);
-
         return UserResponseDto.from(user);
     }
 
@@ -70,12 +53,9 @@ public class UserService implements UserDetailsService {
     public UserResponseDto resetPassword(UserLoginRequestDto request) {
         User user = userRepository.findByName(request.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
-        String newEncodedPassword = passwordEncoder.encode(request.getPassword());
-        user.resetPassword(newEncodedPassword);
-
+        String newPassword = request.getPassword();
+        user.resetPassword(newPassword);
         userRepository.save(user);
-
         return UserResponseDto.from(user);
     }
 

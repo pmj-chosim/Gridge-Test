@@ -36,7 +36,7 @@ public class UserResponseDto {
         return new UserResponseDto(
           user.getId(),
           user.getName(),
-          user.getStatus(),
+          user.getStatus().toString(),
           user.getPhonenumber(),
           user.getCreatedAt().toString(),
           user.getLastLoginAt().toString(),

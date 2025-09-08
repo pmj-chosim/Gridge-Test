@@ -3,14 +3,17 @@ package com.example.gridge.repository.entity.Post;
 
 import com.example.gridge.repository.entity.user.User;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @AllArgsConstructor
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
