@@ -7,6 +7,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Getter
 @AllArgsConstructor
 @Schema(description = "구독 정보 응답 DTO")
@@ -26,13 +29,22 @@ public class SubscriptionResponseDto {
     @Schema(description = "구독 종료 날짜", example = "2025-08-31T00:00:00Z")
     private String endDate;
 
+    @Schema(description = "결제 정보")
+    private List<PaymentResponseDto> payments;
+
     public static SubscriptionResponseDto from(Subscription subscription) {
+
+        List<PaymentResponseDto> paymentDtos = subscription.getPayments().stream()
+                .map(PaymentResponseDto::from)
+                .collect(Collectors.toList());
+
         return new SubscriptionResponseDto(
                 subscription.getId(),
                 subscription.getUser().getId(),
                 subscription.getType(),
                 subscription.getStartSubscription().toString(),
-                subscription.getEndSubscription().toString()
+                subscription.getEndSubscription().toString(),
+                paymentDtos
         );
     }
 

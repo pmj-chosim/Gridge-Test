@@ -2,13 +2,11 @@ package com.example.gridge.repository.entity.payment;
 
 import com.example.gridge.repository.entity.user.User;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Setter
 @Getter
 @Entity
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -55,4 +53,5 @@ public class Payment {
     public void updateStatus(PaymentStatus paymentStatus) {
         this.status = paymentStatus;
     }
+
 }

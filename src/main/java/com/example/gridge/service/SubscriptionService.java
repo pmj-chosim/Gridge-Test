@@ -1,8 +1,14 @@
 package com.example.gridge.service;
 
+import com.example.gridge.controller.payment.dto.PaymentProcessRequestDto;
 import com.example.gridge.controller.payment.dto.SubscriptionResponseDto;
+import com.example.gridge.repository.PaymentRepository;
 import com.example.gridge.repository.SubscriptionRepository;
+import com.example.gridge.repository.entity.payment.Payment;
 import com.example.gridge.repository.entity.payment.Subscription;
+import com.example.gridge.repository.entity.payment.SubscriptionStatus;
+import com.example.gridge.repository.entity.user.User;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
+
+
 
     @Transactional(readOnly = true)
     public SubscriptionResponseDto getSubscriptionByUserId(Integer userId) {
@@ -21,4 +29,6 @@ public class SubscriptionService {
         // 2. 찾은 엔티티를 DTO로 변환하여 반환합니다.
         return SubscriptionResponseDto.from(subscription);
     }
+
+
 }
