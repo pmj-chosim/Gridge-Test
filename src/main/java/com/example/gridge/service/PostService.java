@@ -4,7 +4,7 @@ import com.example.gridge.controller.post.dto.*;
 import com.example.gridge.repository.*;
 import com.example.gridge.repository.entity.Post.*;
 import com.example.gridge.repository.entity.user.User;
-import com.example.gridge.repository.entity.user.VisibleStatus;
+import com.example.gridge.repository.entity.Post.VisibleStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,9 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

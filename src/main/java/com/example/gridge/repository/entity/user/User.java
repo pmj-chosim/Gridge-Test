@@ -1,26 +1,22 @@
 package com.example.gridge.repository.entity.user;
 
-import com.example.gridge.repository.entity.Post.Comment;
-import com.example.gridge.repository.entity.Post.Like;
-import com.example.gridge.repository.entity.Post.Post;
-import com.example.gridge.repository.entity.Post.Report;
+import com.example.gridge.repository.entity.Post.*;
 import com.example.gridge.repository.entity.payment.Payment;
 import com.example.gridge.repository.entity.payment.Subscription;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+@Setter
 @Entity
 @Getter
 @AllArgsConstructor
@@ -36,16 +32,19 @@ public class User implements UserDetails { // UserDetails 인터페이스 구현
     @Enumerated(EnumType.STRING)
     private VisibleStatus status;
     private String phonenumber;
-    private LocalDateTime createdAt;
-    private LocalDateTime lastLoginAt;
+    private Timestamp createdAt;
+    private Timestamp lastLoginAt;
     private Boolean isAdmin;
     private LocalDate birthDate;
+    private LocalDateTime lastConsentDate;
 
     @Enumerated(EnumType.STRING)
     private LoginType loginType;
 
     @Enumerated(EnumType.STRING)
     private ActiveLevel activeLevel;
+
+    private String socialId;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<Payment> payment;
@@ -72,7 +71,7 @@ public class User implements UserDetails { // UserDetails 인터페이스 구현
 
     public static User create(
             String name, String pwd, String phone_number,
-            Boolean isAdmin, LocalDate birthDate, LoginType loginType
+            Boolean isAdmin, LocalDate birthDate, LoginType loginType, String socialId
     ){
         if (loginType==null) {
             loginType = LoginType.GENERAL;
@@ -80,8 +79,9 @@ public class User implements UserDetails { // UserDetails 인터페이스 구현
 
         User user = new User(
                 null, name, pwd, VisibleStatus.PUBLIC, phone_number,
-                LocalDateTime.now(), LocalDateTime.now(), isAdmin, birthDate,
-                loginType, ActiveLevel.ACTIVE,
+                new Timestamp(System.currentTimeMillis()),new Timestamp(System.currentTimeMillis()),
+                isAdmin, birthDate, LocalDateTime.now(),
+                loginType, ActiveLevel.ACTIVE,socialId,
                 new ArrayList<>(), new ArrayList<>(),
                 new ArrayList<>(), new ArrayList<>(),
                 new ArrayList<>(), new ArrayList<>(),
@@ -140,5 +140,9 @@ public class User implements UserDetails { // UserDetails 인터페이스 구현
     // 추가: 비밀번호 재설정 메서드
     public void resetPassword(String newEncodedPassword) {
         this.pwd = newEncodedPassword;
+    }
+
+    public void updateConsentDate() {
+        this.lastConsentDate = LocalDateTime.now();
     }
 }

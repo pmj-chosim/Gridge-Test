@@ -1,4 +1,4 @@
-package com.example.gridge.repository.entity.user;
+package com.example.gridge.repository.entity.Post;
 
 public enum VisibleStatus {
     PUBLIC,

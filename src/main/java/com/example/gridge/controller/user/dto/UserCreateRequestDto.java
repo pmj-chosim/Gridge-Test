@@ -37,4 +37,7 @@ public class UserCreateRequestDto {
     @NotNull(message="Login type is required")
     private LoginType loginType;
 
+    @Schema(description="Social ID (required for social logins)", example="1234567890")
+    private String socialId;
+
 }

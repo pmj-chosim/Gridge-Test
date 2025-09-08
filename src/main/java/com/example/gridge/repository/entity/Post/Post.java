@@ -1,7 +1,6 @@
 package com.example.gridge.repository.entity.Post;
 
 import com.example.gridge.repository.entity.user.User;
-import com.example.gridge.repository.entity.user.VisibleStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

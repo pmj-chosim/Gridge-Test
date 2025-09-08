@@ -6,6 +6,7 @@ import com.example.gridge.controller.user.dto.UserResponseDto;
 import com.example.gridge.controller.user.dto.UserSimpleResponseDto;
 import com.example.gridge.repository.UserRepository;
 import com.example.gridge.repository.entity.user.ActiveLevel;
+import com.example.gridge.repository.entity.user.LoginType;
 import com.example.gridge.repository.entity.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,18 +30,44 @@ public class UserCreationService {
 
     @Transactional
     public UserResponseDto create(UserCreateRequestDto request) {
-        String encodedPassword = passwordEncoder.encode(request.getPassword());
+        String encodedPassword = null;
+        String socialId = null;
+
+        if (request.getLoginType() == LoginType.GENERAL) {
+            if (request.getPassword() == null || request.getPassword().length() < 6) {
+                throw new IllegalArgumentException("자체 로그인 시 비밀번호는 6자 이상이어야 합니다.");
+            }
+            encodedPassword = passwordEncoder.encode(request.getPassword());
+        } else {
+            if (request.getSocialId() == null) {
+                throw new IllegalArgumentException("소셜 로그인 시 socialId는 필수입니다.");
+            }
+            socialId = request.getSocialId();
+        }
+
         User user = User.create(
                 request.getName(),
                 encodedPassword,
                 request.getPhoneNumber(),
                 false,
                 request.getBirthDate(),
-                request.getLoginType()
+                request.getLoginType(),
+                socialId // socialId 필드를 User.create() 메서드에 추가했습니다.
         );
+
         userRepository.save(user);
         return UserResponseDto.from(user);
     }
+
+
+    @Transactional
+    public void setAccountStatus(Integer userId, ActiveLevel newStatus) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setActiveLevel(newStatus);
+        userRepository.save(user);
+    }
+
 
 
     @Transactional
