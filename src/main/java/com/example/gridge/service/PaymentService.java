@@ -1,6 +1,7 @@
 package com.example.gridge.service;
 
 import com.example.gridge.controller.payment.dto.*;
+import com.example.gridge.controller.user.dto.UserResponseDto;
 import com.example.gridge.repository.PaymentRepository;
 import com.example.gridge.repository.SubscriptionRepository;
 import com.example.gridge.repository.UserRepository;
@@ -9,11 +10,18 @@ import com.example.gridge.repository.entity.payment.PaymentStatus;
 import com.example.gridge.repository.entity.payment.Subscription;
 import com.example.gridge.repository.entity.payment.SubscriptionStatus;
 import com.example.gridge.repository.entity.user.User;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -92,6 +100,45 @@ public class PaymentService {
         // 이 결제 건을 Subscription에서 분리합니다.
         subscription.getPayments().remove(savedPayment);
         savedPayment.setSubscription(null);
+    }
+    // 관리자용 메서드
+    @Transactional(readOnly = true)
+    public Page<PaymentResponseDto> getAllPayments(
+            Integer page, Integer size,
+            Optional<LocalDate> startFindDate,
+            Optional<LocalDate> endFindDate,
+            Optional<PaymentStatus> status,
+            Optional<Integer> userId
+    ) {
+        // 모든 결제 정보를 조회하는 로직
+        return null;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<UserResponseDto> getAllSubscriptions(
+            Integer page, Integer size,
+            Optional<LocalDate> startFindDate,
+            Optional<LocalDate> endFindDate,
+            Optional<SubscriptionStatus> status) {
+        // 모든 구독 정보를 조회하는 로직
+        return null;
+    }
+
+    @Transactional
+    public PaymentResponseDto createSubscriptionAdmin(Integer userId, PaymentProcessRequestDto dto) {
+        // 관리자가 구독을 생성하는 로직
+        return null;
+    }
+
+    @Transactional
+    public UserResponseDto updateSubscription(Integer subscriptionId, PaymentProcessRequestDto dto) {
+        // 관리자가 구독을 수정하는 로직
+        return null;
+    }
+
+    @Transactional
+    public void deleteSubscriptionAdmin(Integer subscriptionId) {
+        // 관리자가 구독을 삭제하는 로직
     }
 
 }

@@ -1,6 +1,7 @@
 package com.example.gridge.service;
 
 import com.example.gridge.controller.post.dto.*;
+import com.example.gridge.controller.user.dto.UserResponseDto;
 import com.example.gridge.repository.*;
 import com.example.gridge.repository.entity.Post.*;
 import com.example.gridge.repository.entity.user.User;
@@ -12,6 +13,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -196,9 +200,67 @@ public class PostService {
         postRepository.save(post);
     }
 
+    @Transactional(readOnly = true)
     public PostDetailResponseDto getPostById(Integer postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
         return PostDetailResponseDto.from(post);
     }
+    // 관리자용 메서드
+    @Transactional(readOnly = true)
+    public PostDetailResponseDto getPostByIdAdmin(Integer postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
+        return PostDetailResponseDto.from(post) ;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<UserResponseDto> getAllPosts(
+            Integer page, Integer size,
+            Optional<VisibleStatus> visibleStatus,
+            Optional<LocalDate> findStartDate,
+            Optional<LocalDate> findEndDate,
+            Optional<Boolean> hasLikes,
+            Optional<Boolean> hasComments) {
+        // 모든 게시글을 조회하는 로직 (필터링 적용)
+        return null;
+    }
+
+    @Transactional
+    public UserResponseDto updatePostStatus(Integer postId, VisibleStatus newStatus) {
+        // 게시글의 상태를 변경하는 로직
+        return null;
+    }
+
+    @Transactional
+    public void deletePostAdmin(Integer postId) {
+        // 게시글을 ID로 삭제하는 로직 (권한 체크 제외)
+    }
+
+    @Transactional(readOnly = true)
+    public Page<UserResponseDto> getAllComments(
+            Integer page, Integer size,
+            Optional<Integer> userId, Optional<Integer> postId,
+            Optional<LocalDate> startDate, Optional<LocalDate> endDate) {
+        // 모든 댓글을 조회하는 로직 (필터링 적용)
+        return null;
+    }
+
+    @Transactional
+    public UserResponseDto createCommentAdmin(Integer postId, Integer userId, CommentRequestDto dto) {
+        // 관리자가 다른 유저를 대신해 댓글을 작성하는 로직
+        return null;
+    }
+
+    @Transactional
+    public UserResponseDto updateCommentAdmin(Integer commentId, CommentRequestDto dto) {
+        // 관리자가 댓글을 수정하는 로직
+        return null;
+    }
+
+    @Transactional
+    public void deleteCommentAdmin(Integer commentId) {
+        // 관리자가 댓글을 삭제하는 로직
+    }
+
 }

@@ -61,14 +61,13 @@ public class UserCreationService {
 
 
     @Transactional
-    public void setAccountStatus(Integer userId, ActiveLevel newStatus) {
+    public UserResponseDto updateUserStatus(Integer userId, ActiveLevel newStatus) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         user.setActiveLevel(newStatus);
         userRepository.save(user);
+        return UserResponseDto.from(user);
     }
-
-
 
     @Transactional
     public UserResponseDto resetPassword(User user, UserLoginRequestDto request) {
