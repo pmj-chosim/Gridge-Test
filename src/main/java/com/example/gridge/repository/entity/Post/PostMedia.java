@@ -1,5 +1,6 @@
 package com.example.gridge.repository.entity.Post;
 
+import com.example.gridge.repository.entity.Status;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -24,11 +25,15 @@ public class PostMedia {
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
+    @Enumerated(EnumType.STRING)
+    private Status originStatus;
+
     // 팩토리 메서드
     public static PostMedia create(String url, MediaType mediaType) {
         PostMedia postMedia = new PostMedia();
         postMedia.url = url;
         postMedia.mediaType = mediaType;
+        postMedia.originStatus = Status.ACTIVE;
         return postMedia;
     }
 

@@ -1,5 +1,6 @@
 package com.example.gridge.repository.entity.Post;
 
+import com.example.gridge.repository.entity.Status;
 import com.example.gridge.repository.entity.user.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -34,6 +35,9 @@ public class Report {
 
     private LocalDate createdAt;
 
+    @Enumerated(EnumType.STRING)
+    private Status originStatus;
+
     public static Report create(User user, Post post, ReportReason reason, String detail) {
         return new Report(
                 null,
@@ -42,7 +46,8 @@ public class Report {
                 reason,
                 detail,
                 ReportStatus.PROCESSING,
-                LocalDate.now()
+                LocalDate.now(),
+                Status.ACTIVE
         );
     }
 

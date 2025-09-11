@@ -1,5 +1,6 @@
 package com.example.gridge.repository.entity.Post;
 
+import com.example.gridge.repository.entity.Status;
 import com.example.gridge.repository.entity.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -32,9 +33,13 @@ public class Like {
     private Timestamp createdAt;
     private Timestamp updatedAt;
 
+    @Enumerated(EnumType.STRING)
+    private Status originStatus;
+
     public static Like create(Post post, User user){
         return new Like(
-                null, post, user, new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis())
+                null, post, user, new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis()),
+                Status.ACTIVE
         );
     }
 

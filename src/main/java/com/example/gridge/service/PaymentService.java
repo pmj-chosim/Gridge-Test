@@ -10,6 +10,7 @@ import com.example.gridge.repository.entity.payment.PaymentStatus;
 import com.example.gridge.repository.entity.payment.Subscription;
 import com.example.gridge.repository.entity.payment.SubscriptionStatus;
 import com.example.gridge.repository.entity.user.User;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -97,9 +98,8 @@ public class PaymentService {
         subscription.setType(SubscriptionStatus.INACTIVE);
         subscriptionRepository.save(subscription);
 
-        // 이 결제 건을 Subscription에서 분리합니다.
-        subscription.getPayments().remove(savedPayment);
-        savedPayment.setSubscription(null);
+        // subscription 상태를 INACTIVE로 변경
+        subscription.setType(SubscriptionStatus.CANCELLED);
     }
     // 관리자용 메서드
     @Transactional(readOnly = true)
@@ -110,35 +110,9 @@ public class PaymentService {
             Optional<PaymentStatus> status,
             Optional<Integer> userId
     ) {
-        // 모든 결제 정보를 조회하는 로직
-        return null;
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        // TODO: Repository에 필터링 쿼리 구현 필요
+        Page<Payment> payments = paymentRepository.findAll(pageable);
+        return payments.map(PaymentResponseDto::from);
     }
-
-    @Transactional(readOnly = true)
-    public Page<UserResponseDto> getAllSubscriptions(
-            Integer page, Integer size,
-            Optional<LocalDate> startFindDate,
-            Optional<LocalDate> endFindDate,
-            Optional<SubscriptionStatus> status) {
-        // 모든 구독 정보를 조회하는 로직
-        return null;
-    }
-
-    @Transactional
-    public PaymentResponseDto createSubscriptionAdmin(Integer userId, PaymentProcessRequestDto dto) {
-        // 관리자가 구독을 생성하는 로직
-        return null;
-    }
-
-    @Transactional
-    public UserResponseDto updateSubscription(Integer subscriptionId, PaymentProcessRequestDto dto) {
-        // 관리자가 구독을 수정하는 로직
-        return null;
-    }
-
-    @Transactional
-    public void deleteSubscriptionAdmin(Integer subscriptionId) {
-        // 관리자가 구독을 삭제하는 로직
-    }
-
 }

@@ -3,7 +3,9 @@ package com.example.gridge.controller;
 
 import com.example.gridge.controller.payment.dto.PaymentProcessRequestDto;
 import com.example.gridge.controller.payment.dto.PaymentResponseDto;
+import com.example.gridge.controller.payment.dto.SubscriptionResponseDto;
 import com.example.gridge.controller.post.dto.CommentRequestDto;
+import com.example.gridge.controller.post.dto.CommentResponseDto;
 import com.example.gridge.controller.post.dto.PostDetailResponseDto;
 import com.example.gridge.controller.user.dto.UserResponseDto;
 import com.example.gridge.controller.user.dto.UserSimpleResponseDto;
@@ -14,6 +16,7 @@ import com.example.gridge.repository.entity.user.ActiveLevel;
 import com.example.gridge.repository.entity.user.User;
 import com.example.gridge.service.PaymentService;
 import com.example.gridge.service.PostService;
+import com.example.gridge.service.SubscriptionService;
 import com.example.gridge.service.UserCreationService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -35,6 +38,7 @@ public class AdminController {
     private final UserCreationService userCreationService;
     private final PostService postService;
     private final PaymentService paymentService;
+    private final SubscriptionService subscriptionService;
 
 
     //유저 관련 API
@@ -87,7 +91,7 @@ public class AdminController {
     @Secured("ROLE_ADMIN")
     @Operation(summary="모든 게시글 조회(페이징)", description="모든 게시글의 간단한 정보를 페이징 처리하여 조회합니다. (어드민 권한 필요)")
     @GetMapping("/posts")
-    public ResponseEntity<Page<UserResponseDto>> getAllPosts(
+    public ResponseEntity<Page<PostDetailResponseDto>> getAllPosts(
             @RequestParam Integer page,
             @RequestParam Integer size,
             @RequestParam(required = false) Optional<VisibleStatus> visibleStatus,
@@ -96,17 +100,17 @@ public class AdminController {
             @RequestParam(required = false) Optional<Boolean> hasLikes,
             @RequestParam(required = false) Optional<Boolean> hasComments
     ) {
-        Page<UserResponseDto> posts = postService.getAllPosts(page, size, visibleStatus, findStartDate, findEndDate, hasLikes, hasComments);
+        Page<PostDetailResponseDto> posts = postService.getAllPosts(page, size, visibleStatus, findStartDate, findEndDate, hasLikes, hasComments);
         return ResponseEntity.ok(posts);
     }
 
     @Secured("ROLE_ADMIN")
     @Operation (summary="특정 게시글 상태 변경", description="특정 게시글의 상태를 변경합니다. (어드민 권한 필요)")
     @PatchMapping("/posts/{id}/status")
-    public ResponseEntity<UserResponseDto> updatePostStatus(
+    public ResponseEntity<PostDetailResponseDto> updatePostStatus(
             @PathVariable Integer id,
             @RequestParam VisibleStatus status) {
-        UserResponseDto post = postService.updatePostStatus(id, status);
+        PostDetailResponseDto post = postService.updatePostStatus(id, status);
         return ResponseEntity.ok(post);
     }
 
@@ -122,7 +126,7 @@ public class AdminController {
     @Secured("ROLE_ADMIN")
     @Operation(summary="모든 댓글 정보 조회(페이징)", description="모든 댓글의 간단한 정보를 페이징 처리하여 조회합니다. (어드민 권한 필요)")
     @GetMapping("/comments")
-    public ResponseEntity<Page<UserResponseDto>> getAllComments(
+    public ResponseEntity<Page<CommentResponseDto>> getAllComments(
             @RequestParam Integer page,
             @RequestParam Integer size,
             @RequestParam(required = false) Optional<Integer> userId,
@@ -130,27 +134,27 @@ public class AdminController {
             @RequestParam(required = false) Optional<LocalDate> startDate,
             @RequestParam(required = false) Optional<LocalDate> endDate
     ) {
-        Page<UserResponseDto> comments = postService.getAllComments(page, size, userId, postId, startDate, endDate);
+        Page<CommentResponseDto> comments = postService.getAllComments(page, size, userId, postId, startDate, endDate);
         return ResponseEntity.ok(comments);
     }
 
     @Secured("ROLE_ADMIN")
     @Operation(summary="댓글 생성", description="댓글을 생성합니다. (어드민 권한 필요)")
     @PostMapping("/comments")
-    public ResponseEntity<UserResponseDto> createComment(
+    public ResponseEntity<CommentResponseDto> createComment(
             @RequestParam Integer postId,
             @RequestParam Integer userId,
             @Valid @RequestBody CommentRequestDto commentRequestDto) {
-        UserResponseDto comment = postService.createCommentAdmin(postId, userId, commentRequestDto);
+        CommentResponseDto comment = postService.createCommentAdmin(postId, userId, commentRequestDto);
         return ResponseEntity.ok(comment);
     }
 
     @Secured("ROLE_ADMIN")
     @Operation(summary="특정 댓글 수정", description="특정 댓글을 수정합니다. (어드민 권한 필요)")
     @PatchMapping("/comments/{commentId}")
-    public ResponseEntity<UserResponseDto> updateComment(@PathVariable Integer commentId,
-                                                         @Valid @RequestBody CommentRequestDto commentRequestDto) {
-        UserResponseDto comment = postService.updateCommentAdmin(commentId, commentRequestDto);
+    public ResponseEntity<CommentResponseDto> updateComment(@PathVariable Integer commentId,
+                                                            @Valid @RequestBody CommentRequestDto commentRequestDto) {
+        CommentResponseDto comment = postService.updateCommentAdmin(commentId, commentRequestDto);
         return ResponseEntity.ok(comment);
     }
 
@@ -166,14 +170,14 @@ public class AdminController {
     @Secured("ROLE_ADMIN")
     @Operation(summary="모든 구독 정보 조회(페이징)", description="모든 구독 정보를 페이징 처리하여 조회합니다. (어드민 권한 필요)")
     @GetMapping("/subscriptions")
-    public ResponseEntity<Page<UserResponseDto>> getAllSubscriptions(
+    public ResponseEntity<Page<SubscriptionResponseDto>> getAllSubscriptions(
             @RequestParam Integer page,
             @RequestParam Integer size,
             @RequestParam (required = false) Optional<LocalDate> startFindDate,
             @RequestParam (required = false) Optional<LocalDate> endFindDate,
             @RequestParam (required = false) Optional<SubscriptionStatus> status
     ) {
-        Page<UserResponseDto> subscriptions = paymentService.getAllSubscriptions(page, size, startFindDate, endFindDate,status);
+        Page<SubscriptionResponseDto> subscriptions = subscriptionService.getAllSubscriptions(page, size, startFindDate, endFindDate,status);
         return ResponseEntity.ok(subscriptions);
     }
 
@@ -181,19 +185,29 @@ public class AdminController {
     @Secured("ROLE_ADMIN")
     @Operation(summary="새 구독 정보 생성", description="새 구독 정보를 생성합니다. (어드민 권한 필요)")
     @PostMapping("/subscriptions")
-    public ResponseEntity<PaymentResponseDto> createSubscription(@RequestParam Integer userId,
-                                                                 @Valid @RequestBody PaymentProcessRequestDto paymentDto) {
-        PaymentResponseDto responseDto = paymentService.createSubscriptionAdmin(userId, paymentDto);
+    public ResponseEntity<SubscriptionResponseDto> createSubscription(@RequestParam Integer userId,
+                                                                      @Valid @RequestBody PaymentProcessRequestDto paymentDto) {
+        SubscriptionResponseDto responseDto = subscriptionService.createSubscriptionAdmin(userId, paymentDto);
         return ResponseEntity.ok(responseDto);
     }
 
     @Secured("ROLE_ADMIN")
     @Operation(summary = "구독 정보 업데이트", description = "구독 정보를 새로 업데이트 합니다(어드민 권한 필요)")
     @PatchMapping("/subscriptions/{subscriptionId}")
-    public ResponseEntity<UserResponseDto> updateSubscription(
+    public ResponseEntity<SubscriptionResponseDto> updateSubscription(
             @PathVariable Integer subscriptionId,
             @Valid @RequestBody PaymentProcessRequestDto paymentDto) {
-        UserResponseDto updatedSubscription = paymentService.updateSubscription(subscriptionId, paymentDto);
+        SubscriptionResponseDto updatedSubscription = subscriptionService.updateSubscription(subscriptionId, paymentDto);
+        return ResponseEntity.ok(updatedSubscription);
+    }
+
+    @Secured("ROLE_ADMIN")
+    @Operation(summary = "구독 정보 수정" , description = "구독 정보를 수정합니다(어드민 권한 필요)")
+    @PatchMapping("/subscriptions/{subscriptionId}/status")
+    public ResponseEntity<SubscriptionResponseDto> updateSubscriptionStatus(
+            @PathVariable Integer subscriptionId,
+            @RequestParam SubscriptionStatus status) {
+        SubscriptionResponseDto updatedSubscription = subscriptionService.updateSubscriptionStatusAdmin(subscriptionId, status);
         return ResponseEntity.ok(updatedSubscription);
     }
 
@@ -201,7 +215,7 @@ public class AdminController {
     @Operation(summary = "특정 구독 정보 삭제", description = "특정 구독 정보를 삭제합니다(어드민 권한 필요)")
     @DeleteMapping("/subscriptions/{subscriptionId}")
     public ResponseEntity<String> deleteSubscription(@PathVariable Integer subscriptionId) {
-        paymentService.deleteSubscriptionAdmin(subscriptionId);
+        subscriptionService.deleteSubscriptionAdmin(subscriptionId);
         return ResponseEntity.ok("Subscription deleted with ID: " + subscriptionId);
     }
 

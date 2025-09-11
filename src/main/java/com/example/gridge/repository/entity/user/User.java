@@ -1,6 +1,7 @@
 package com.example.gridge.repository.entity.user;
 
 import com.example.gridge.repository.entity.Post.*;
+import com.example.gridge.repository.entity.Status;
 import com.example.gridge.repository.entity.payment.Payment;
 import com.example.gridge.repository.entity.payment.Subscription;
 import jakarta.persistence.*;
@@ -64,7 +65,9 @@ public class User implements UserDetails { // UserDetails 인터페이스 구현
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<Report> report;
 
-    @Transient
+    @Enumerated(EnumType.STRING)
+    private Status originStatus;
+
     private List<SimpleGrantedAuthority> authorities = new ArrayList<>();
     public final static SimpleGrantedAuthority ROLE_USER = new SimpleGrantedAuthority("ROLE_USER");
     public final static SimpleGrantedAuthority ROLE_ADMIN = new SimpleGrantedAuthority("ROLE_ADMIN");
@@ -85,7 +88,8 @@ public class User implements UserDetails { // UserDetails 인터페이스 구현
                 new ArrayList<>(), new ArrayList<>(),
                 new ArrayList<>(), new ArrayList<>(),
                 new ArrayList<>(), new ArrayList<>(),
-                new ArrayList<>() // authorities 필드 초기화
+                Status.ACTIVE,
+                new ArrayList<>() // authorities 필드 초기화,
         );
         // 권한 설정 로직은 create 메서드에서 별도로 처리합니다.
         user.setRoles(isAdmin);

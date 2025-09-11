@@ -211,56 +211,76 @@ public class PostService {
     public PostDetailResponseDto getPostByIdAdmin(Integer postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
-        return PostDetailResponseDto.from(post) ;
+        return PostDetailResponseDto.from(post);
     }
 
     @Transactional(readOnly = true)
-    public Page<UserResponseDto> getAllPosts(
+    public Page<PostDetailResponseDto> getAllPosts(
             Integer page, Integer size,
             Optional<VisibleStatus> visibleStatus,
             Optional<LocalDate> findStartDate,
             Optional<LocalDate> findEndDate,
             Optional<Boolean> hasLikes,
             Optional<Boolean> hasComments) {
-        // 모든 게시글을 조회하는 로직 (필터링 적용)
-        return null;
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        // TODO: Repository에 필터링 쿼리 구현 필요 (예: findByVisibleStatusAndCreatedAtBetween...)
+        Page<Post> posts = postRepository.findAll(pageable);
+        return posts.map(PostDetailResponseDto::from);
     }
 
     @Transactional
-    public UserResponseDto updatePostStatus(Integer postId, VisibleStatus newStatus) {
-        // 게시글의 상태를 변경하는 로직
-        return null;
+    public PostDetailResponseDto updatePostStatus(Integer postId, VisibleStatus newStatus) {
+        Post post= postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
+        post.setStatus(newStatus);
+        Post savedPost = postRepository.save(post);
+
+        return PostDetailResponseDto.from(savedPost);
     }
 
     @Transactional
     public void deletePostAdmin(Integer postId) {
-        // 게시글을 ID로 삭제하는 로직 (권한 체크 제외)
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
+        postRepository.delete(post);
     }
 
     @Transactional(readOnly = true)
-    public Page<UserResponseDto> getAllComments(
+    public Page<CommentResponseDto> getAllComments(
             Integer page, Integer size,
             Optional<Integer> userId, Optional<Integer> postId,
             Optional<LocalDate> startDate, Optional<LocalDate> endDate) {
-        // 모든 댓글을 조회하는 로직 (필터링 적용)
-        return null;
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        // TODO: Repository에 필터링 쿼리 구현 필요 (예: findByUserIdAndPostId...)
+        Page<Comment> comments = commentRepository.findAll(pageable);
+        return comments.map(CommentResponseDto::from);
     }
 
     @Transactional
-    public UserResponseDto createCommentAdmin(Integer postId, Integer userId, CommentRequestDto dto) {
-        // 관리자가 다른 유저를 대신해 댓글을 작성하는 로직
-        return null;
+    public CommentResponseDto createCommentAdmin(Integer postId, Integer userId, CommentRequestDto dto) {
+        Post post= postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+        Comment comment = Comment.create(post, user, dto.getContent());
+        Comment savedComment = commentRepository.save(comment);
+        return CommentResponseDto.from(savedComment);
     }
 
     @Transactional
-    public UserResponseDto updateCommentAdmin(Integer commentId, CommentRequestDto dto) {
-        // 관리자가 댓글을 수정하는 로직
-        return null;
+    public CommentResponseDto updateCommentAdmin(Integer commentId, CommentRequestDto dto) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("Comment not found with ID: " + commentId));
+        comment.updateContent(dto.getContent());
+        Comment savedComment = commentRepository.save(comment);
+        return CommentResponseDto.from(savedComment);
     }
 
     @Transactional
     public void deleteCommentAdmin(Integer commentId) {
-        // 관리자가 댓글을 삭제하는 로직
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("Comment not found with ID: " + commentId));
+        commentRepository.delete(comment);
     }
 
 }

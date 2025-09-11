@@ -1,5 +1,6 @@
 package com.example.gridge.repository.entity.payment;
 
+import com.example.gridge.repository.entity.Status;
 import com.example.gridge.repository.entity.user.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -33,6 +34,9 @@ public class Payment {
     private String transactionId;
     private Timestamp createdAt;
 
+    @Enumerated(EnumType.STRING)
+    private Status originStatus;
+
 
     public static Payment create(User user, Integer paymentAmount, PaymentStatus status, String merchantUid) {
         return new Payment(
@@ -42,7 +46,8 @@ public class Payment {
                 paymentAmount,
                 status,
                 merchantUid,
-                new Timestamp(System.currentTimeMillis())
+                new Timestamp(System.currentTimeMillis()),
+                Status.ACTIVE
         );
     }
 

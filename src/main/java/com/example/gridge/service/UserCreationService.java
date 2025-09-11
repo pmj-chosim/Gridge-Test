@@ -85,6 +85,18 @@ public class UserCreationService {
         return UserResponseDto.from(user);
     }
 
+    @Transactional
+    public UserResponseDto updateUserAdminStatus(Integer userId, Boolean isAdmin) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setIsAdmin(isAdmin);
+        user.setRoles(isAdmin);
+
+        userRepository.save(user);
+        return UserResponseDto.from(user);
+    }
+
+
     @Transactional(readOnly = true)
     public Page<UserSimpleResponseDto> getAllUsers(
             Integer page,

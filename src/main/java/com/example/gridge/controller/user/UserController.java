@@ -15,10 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.*;
 
 
@@ -60,6 +57,15 @@ public class UserController {
             @AuthenticationPrincipal User user,
             @RequestBody @Valid UserLoginRequestDto request){
         UserResponseDto updatedUser = userCreationService.resetPassword(user, request);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    @Operation(summary="유저 어드민 등록", description="유저를 어드민으로 등록합니다.")
+    @PostMapping("/make-admin")
+    public ResponseEntity<UserResponseDto> makeAdmin(
+            @AuthenticationPrincipal User user,
+            @RequestParam Boolean isAdmin){
+        UserResponseDto updatedUser = userCreationService.updateUserAdminStatus(user.getId(), isAdmin);
         return ResponseEntity.ok(updatedUser);
     }
 

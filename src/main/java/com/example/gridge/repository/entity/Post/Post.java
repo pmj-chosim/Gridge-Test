@@ -1,5 +1,6 @@
 package com.example.gridge.repository.entity.Post;
 
+import com.example.gridge.repository.entity.Status;
 import com.example.gridge.repository.entity.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -58,6 +59,9 @@ public class Post {
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
     private List<Report> reportList;
 
+    @Enumerated(EnumType.STRING)
+    private Status originStatus;
+
     // 팩토리 메서드
     public static Post create(User user, String content, VisibleStatus status, String location, List<String> mediaUrls, List<String> mediaTypes) {
         Post post = new Post();
@@ -70,6 +74,9 @@ public class Post {
         post.updatedAt = new Timestamp(System.currentTimeMillis());
         post.likeCount = 0;
         post.commentCount = 0;
+        post.originStatus = Status.ACTIVE;
+
+
 
         // PostMedia 리스트 생성 및 연관 관계 설정
         if(mediaUrls!= null && mediaTypes != null && mediaUrls.size() != mediaTypes.size()) {

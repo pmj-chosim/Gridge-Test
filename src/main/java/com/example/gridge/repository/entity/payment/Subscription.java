@@ -1,5 +1,6 @@
 package com.example.gridge.repository.entity.payment;
 
+import com.example.gridge.repository.entity.Status;
 import com.example.gridge.repository.entity.user.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -35,6 +36,9 @@ public class Subscription {
     private Timestamp createdAt;
     private Timestamp updatedAt;
 
+    @Enumerated(EnumType.STRING)
+    private Status originStatus;
+
     // Payment를 인자로 받지 않는 새로운 create 메서드
     public static Subscription create(User user, SubscriptionStatus type, Integer durationInMonths) {
         return new Subscription(
@@ -45,7 +49,8 @@ public class Subscription {
                 LocalDate.now(),
                 LocalDate.now().plusMonths(durationInMonths),
                 new Timestamp(System.currentTimeMillis()),
-                new Timestamp(System.currentTimeMillis())
+                new Timestamp(System.currentTimeMillis()),
+                Status.ACTIVE
         );
     }
     public void addPayment(Payment payment) {
