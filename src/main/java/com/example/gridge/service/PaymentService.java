@@ -2,6 +2,8 @@ package com.example.gridge.service;
 
 import com.example.gridge.controller.payment.dto.*;
 import com.example.gridge.controller.user.dto.UserResponseDto;
+import com.example.gridge.exception.AlreadyExistsException;
+import com.example.gridge.exception.UnauthorizedException;
 import com.example.gridge.repository.PaymentRepository;
 import com.example.gridge.repository.SubscriptionRepository;
 import com.example.gridge.repository.UserRepository;
@@ -36,7 +38,7 @@ public class PaymentService {
         // 1. 이미 진행 중인 동일한 merchantUid 결제가 있는지 확인
         paymentRepository.findByTransactionIdAndStatus(request.getMerchantUid(), PaymentStatus.PENDING)
                 .ifPresent(p -> {
-                    throw new RuntimeException("Payment with the same transaction ID is already in PENDING status.");
+                    throw new AlreadyExistsException("Payment with the same transaction ID is already in PENDING status.");
                 });
 
         // 2. 구독 정보가 없으면 새로 생성, 있으면 기존 구독 가져오기
@@ -86,7 +88,7 @@ public class PaymentService {
                 .orElseThrow(() -> new RuntimeException("Invalid merchantUid."));
 
         if (!payment.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("You are not authorized to cancel this payment.");
+            throw new UnauthorizedException("You are not authorized to cancel this payment.");
         }
 
         payment.updateStatus(PaymentStatus.CANCELLED);

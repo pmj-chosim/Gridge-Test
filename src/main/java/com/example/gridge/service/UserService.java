@@ -1,5 +1,7 @@
 package com.example.gridge.service;
 
+import com.example.gridge.exception.ConsentExpiredException;
+import com.example.gridge.exception.UserStatusException;
 import com.example.gridge.repository.UserRepository;
 import com.example.gridge.repository.entity.user.ActiveLevel;
 import com.example.gridge.repository.entity.user.User;
@@ -26,15 +28,15 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 유저입니다 - username : " + username));
 
         if (user.getActiveLevel() == ActiveLevel.INACTIVE) {
-            throw new RuntimeException("휴면 계정입니다. 계정을 활성화해주세요.");
+            throw new UserStatusException("휴면 계정입니다. 계정을 활성화해주세요.");
         }
         if (user.getActiveLevel() == ActiveLevel.BANNED) {
-            throw new RuntimeException("차단된 계정입니다.");
+            throw new UserStatusException("차단된 계정입니다.");
         }
 
         // 개인정보처리 동의 만료 확인 (1년 기준)
         if (ChronoUnit.DAYS.between(user.getLastConsentDate(), LocalDateTime.now()) > 365) {
-            throw new RuntimeException("개인정보처리 동의가 만료되었습니다. 다시 동의해주세요.");
+            throw new ConsentExpiredException("개인정보처리 동의가 만료되었습니다. 다시 동의해주세요.");
         }
 
         return user;

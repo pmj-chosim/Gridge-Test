@@ -4,6 +4,7 @@ import com.example.gridge.controller.user.dto.UserCreateRequestDto;
 import com.example.gridge.controller.user.dto.UserLoginRequestDto;
 import com.example.gridge.controller.user.dto.UserResponseDto;
 import com.example.gridge.controller.user.dto.UserSimpleResponseDto;
+import com.example.gridge.exception.ResourceNotFoundException;
 import com.example.gridge.repository.UserRepository;
 import com.example.gridge.repository.entity.user.ActiveLevel;
 import com.example.gridge.repository.entity.user.LoginType;
@@ -63,7 +64,7 @@ public class UserCreationService {
     @Transactional
     public UserResponseDto updateUserStatus(Integer userId, ActiveLevel newStatus) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         user.setActiveLevel(newStatus);
         userRepository.save(user);
         return UserResponseDto.from(user);
@@ -81,14 +82,14 @@ public class UserCreationService {
     @Transactional(readOnly = true)
     public UserResponseDto getUserById(Integer id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         return UserResponseDto.from(user);
     }
 
     @Transactional
     public UserResponseDto updateUserAdminStatus(Integer userId, Boolean isAdmin) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         user.setIsAdmin(isAdmin);
         user.setRoles(isAdmin);
 

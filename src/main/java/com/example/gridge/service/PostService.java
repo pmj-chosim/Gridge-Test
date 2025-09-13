@@ -2,6 +2,8 @@ package com.example.gridge.service;
 
 import com.example.gridge.controller.post.dto.*;
 import com.example.gridge.controller.user.dto.UserResponseDto;
+import com.example.gridge.exception.AlreadyExistsException;
+import com.example.gridge.exception.UnauthorizedException;
 import com.example.gridge.repository.*;
 import com.example.gridge.repository.entity.Post.*;
 import com.example.gridge.repository.entity.user.User;
@@ -66,7 +68,7 @@ public class PostService {
                 .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
 
         if (!post.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("You are not authorized to update this post.");
+            throw new UnauthorizedException("You are not authorized to update this post.");
         }
 
         post.update(request.getContent(), request.getVisibleStatus());
@@ -96,7 +98,7 @@ public class PostService {
                 .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
 
         if (likeRepository.existsByUserIdAndPostId(user.getId(), postId)) {
-            throw new RuntimeException("You have already liked this post.");
+            throw new AlreadyExistsException("You have already liked this post.");
         }
 
         Like like = Like.create(post, user);

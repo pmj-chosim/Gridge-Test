@@ -3,6 +3,7 @@ package com.example.gridge.service;
 import com.example.gridge.controller.payment.dto.PaymentProcessRequestDto;
 import com.example.gridge.controller.payment.dto.SubscriptionResponseDto;
 import com.example.gridge.controller.user.dto.UserResponseDto;
+import com.example.gridge.exception.ResourceNotFoundException;
 import com.example.gridge.repository.PaymentRepository;
 import com.example.gridge.repository.SubscriptionRepository;
 import com.example.gridge.repository.UserRepository;
@@ -37,7 +38,7 @@ public class SubscriptionService {
     public SubscriptionResponseDto getSubscriptionByUserId(Integer userId) {
         // 1. userId를 사용하여 DB에서 구독 정보를 찾습니다.
         Subscription subscription = subscriptionRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("No subscription found for this user."));
+                .orElseThrow(() -> new ResourceNotFoundException("No subscription found for this user."));
 
         // 2. 찾은 엔티티를 DTO로 변환하여 반환합니다.
         return SubscriptionResponseDto.from(subscription);
@@ -58,7 +59,7 @@ public class SubscriptionService {
 
     @Transactional
     public SubscriptionResponseDto createSubscriptionAdmin(Integer userId, PaymentProcessRequestDto dto) {
-        User user=userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found."));
+        User user=userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found."));
         Subscription subscription =Subscription.create(
                 user,
                 SubscriptionStatus.ACTIVE, // 관리자 생성 시 ACTIVE 상태로 바로 변경
@@ -80,7 +81,7 @@ public class SubscriptionService {
     @Transactional
     public SubscriptionResponseDto updateSubscription(Integer subscriptionId, PaymentProcessRequestDto dto) {
         Subscription subscription =subscriptionRepository.
-                findById(subscriptionId).orElseThrow(() -> new RuntimeException("Subscription not found."));
+                findById(subscriptionId).orElseThrow(() -> new ResourceNotFoundException("Subscription not found."));
         List<Payment> payments=subscription.getPayments();
 
         for(Payment p:payments){
@@ -97,7 +98,7 @@ public class SubscriptionService {
     @Transactional
     public SubscriptionResponseDto updateSubscriptionStatusAdmin(Integer subscriptionId, SubscriptionStatus status) {
         Subscription subscription =subscriptionRepository.
-                findById(subscriptionId).orElseThrow(() -> new RuntimeException("Subscription not found."));
+                findById(subscriptionId).orElseThrow(() -> new ResourceNotFoundException("Subscription not found."));
         subscription.setType(status);
         Subscription savedSubscription=subscriptionRepository.save(subscription);
         return SubscriptionResponseDto.from(savedSubscription);
@@ -106,7 +107,7 @@ public class SubscriptionService {
     @Transactional
     public void deleteSubscriptionAdmin(Integer subscriptionId) {
         Subscription subscription =subscriptionRepository.
-                findById(subscriptionId).orElseThrow(() -> new RuntimeException("Subscription not found."));
+                findById(subscriptionId).orElseThrow(() -> new ResourceNotFoundException("Subscription not found."));
         subscriptionRepository.delete(subscription);
     }
 }
