@@ -23,6 +23,9 @@
 [Database (예: MySQL)]
 ```
 
+<img width="1427" height="761" alt="image" src="https://github.com/user-attachments/assets/66dcab2a-b181-4757-aad0-c9d150bfc08a" />  
+
+
 ---
 
 ## 폴더 구조 및 상세 기능 설명
